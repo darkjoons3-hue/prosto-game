@@ -31,7 +31,6 @@ void OnMouseClick(int x, int y) {
             }
         }
     } else if (g_state == STATE_GAME_OVER || g_state == STATE_COMPLETE) {
-        // По клику возвращаемся в меню
         g_state = STATE_MENU;
         InitMenu();
     }
@@ -70,15 +69,18 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
     wc.lpszClassName = L"SquareGameWnd";
     RegisterClassW(&wc);
 
-    RECT wr = { 0, 0, 800, 600 };
-    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME, FALSE);
+    // --- ВОЗВРАЩАЕМ РЕЖИМ БЕЗ РАМОК (ИДЕАЛЬНО ДЛЯ WINLATOR) ---
+    int screenW = GetSystemMetrics(SM_CXSCREEN);
+    int screenH = GetSystemMetrics(SM_CYSCREEN);
 
-    g_hWnd = CreateWindowExW(0, L"SquareGameWnd", L"Game", 
-        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME, 
-        (GetSystemMetrics(SM_CXSCREEN) - (wr.right - wr.left)) / 2, 
-        (GetSystemMetrics(SM_CYSCREEN) - (wr.bottom - wr.top)) / 2, 
-        wr.right - wr.left, wr.bottom - wr.top, 
+    g_hWnd = CreateWindowExW(WS_EX_TOPMOST, L"SquareGameWnd", L"Square Black and Green", 
+        WS_POPUP | WS_VISIBLE, 
+        0, 0, screenW, screenH, // Растягиваем на весь экран Winlator
         nullptr, nullptr, hInst, nullptr);
+
+    // Принудительно выводим окно на передний план
+    SetForegroundWindow(g_hWnd);
+    SetFocus(g_hWnd);
 
     InitMenu();
 
@@ -103,6 +105,7 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
         else if (g_state == STATE_GAME_OVER) RenderGameOver(memDC);
         else if (g_state == STATE_COMPLETE) RenderComplete(memDC);
 
+        // Растягиваем отрисовку на экран (или центрируем)
         BitBlt(hdc, 0, 0, 800, 600, memDC, 0, 0, SRCCOPY);
         Sleep(16); 
     }
