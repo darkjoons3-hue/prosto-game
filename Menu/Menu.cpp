@@ -1,7 +1,10 @@
+#pragma execution_character_set("utf-8") // <--- ВОТ ЭТО РЕШАЕТ ПРОБЛЕМУ С РУССКИМ ТЕКСТОМ
+
 #include "Menu.h"
 #include <cmath>
 
-// --- Локальные переменные меню ---
+using namespace Gdiplus;
+
 float g_disclaimerAlpha = 0.0f;
 float g_menuAlpha = 0.0f;
 POINT g_mousePos = { 400, 300 };
@@ -9,8 +12,6 @@ POINT g_lastMousePos = { -1, -1 };
 float g_cursorAngle = 0.0f;
 float g_glitchTimer = 0.0f;
 RECT g_glitchRect = { 0, 0, 0, 0 };
-
-using namespace Gdiplus;
 
 void DrawTextAlpha(HDC hdc, const wchar_t* text, RECT rc, float alpha, int fontSize, bool bold, Color color) {
     Graphics graphics(hdc);
@@ -34,7 +35,7 @@ void DrawCustomCursor(HDC hdc) {
     PointF points[3] = { p1, p2, p3 };
     SolidBrush fillBrush(Color(255, 0, 0, 0));
     graphics.FillPolygon(&fillBrush, points, 3);
-    Pen outlinePen(Color(255, 255, 255, 255), 1.5f); // Белая обводка для черного фона
+    Pen outlinePen(Color(255, 255, 255, 255), 1.5f);
     graphics.DrawPolygon(&outlinePen, points, 3);
 }
 
@@ -44,7 +45,6 @@ void InitMenu() {
 }
 
 void UpdateMenu() {
-    // 1. Обновление курсора
     POINT currentMouse;
     GetCursorPos(&currentMouse);
     ScreenToClient(g_hWnd, &currentMouse);
@@ -55,7 +55,6 @@ void UpdateMenu() {
         g_mousePos = currentMouse;
     }
 
-    // 2. Анимации
     if (g_state == STATE_DISCLAIMER) {
         if (g_disclaimerAlpha < 1.0f) g_disclaimerAlpha += 0.01f;
     } else if (g_state == STATE_MENU) {
@@ -99,20 +98,17 @@ void RenderMenu(HDC hdc) {
         }
     } 
     else if (g_state == STATE_MENU) {
-        SolidBrush bg(Color(255, 255, 255, 255)); // Белый фон
+        SolidBrush bg(Color(255, 255, 255, 255)); 
         graphics.FillRectangle(&bg, 0, 0, 800, 600);
 
-        // Логотип
         SolidBrush logoBrush(Color(255, 0, 0, 0));
         graphics.FillRectangle(&logoBrush, 325, 150, 150, 150);
 
-        // Глитч
         if (g_glitchRect.right > 0) {
             SolidBrush glitchBrush(Color(255, 0, 255, 0));
             graphics.FillRectangle(&glitchBrush, g_glitchRect.left, g_glitchRect.top, 8, 8);
         }
 
-        // Кнопки
         const wchar_t* buttons[] = { L"PLAY", L"ONITION", L"EXIT" };
         for (int i = 0; i < 3; i++) {
             RECT btnRect = { 300, 350 + (i * 50), 500, 390 + (i * 50) };
