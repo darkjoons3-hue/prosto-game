@@ -1,6 +1,8 @@
 #include "Level1.h"
 #include <cmath>
 
+using namespace Gdiplus;
+
 // --- Константы уровня ---
 const float LEVEL_WIDTH = 2500.0f;  // Длина уровня
 const float LEVEL_HEIGHT = 800.0f;  // Высота уровня
