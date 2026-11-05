@@ -22,14 +22,18 @@ void OnMouseClick(int x, int y) {
         for (int i = 0; i < 3; i++) {
             RECT btnRect = { 300, 350 + (i * 50), 500, 390 + (i * 50) };
             if (x >= btnRect.left && x <= btnRect.right && y >= btnRect.top && y <= btnRect.bottom) {
-                if (i == 0) { // PLAY
+                if (i == 0) { 
                     g_state = STATE_PLAYING;
                     InitLevel1();
-                } else if (i == 2) { // EXIT
+                } else if (i == 2) { 
                     g_running = false;
                 }
             }
         }
+    } else if (g_state == STATE_GAME_OVER || g_state == STATE_COMPLETE) {
+        // По клику возвращаемся в меню
+        g_state = STATE_MENU;
+        InitMenu();
     }
 }
 
@@ -66,15 +70,14 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
     wc.lpszClassName = L"SquareGameWnd";
     RegisterClassW(&wc);
 
-    // --- ИСПРАВЛЕНИЕ: Добавляем стандартную рамку и заголовок ---
     RECT wr = { 0, 0, 800, 600 };
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME, FALSE);
 
-    g_hWnd = CreateWindowExW(0, L"SquareGameWnd", L"Game", // <-- Название окна
+    g_hWnd = CreateWindowExW(0, L"SquareGameWnd", L"Game", 
         WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME, 
         (GetSystemMetrics(SM_CXSCREEN) - (wr.right - wr.left)) / 2, 
         (GetSystemMetrics(SM_CYSCREEN) - (wr.bottom - wr.top)) / 2, 
-        wr.right - wr.left, wr.bottom - wr.top, // <-- Размер с учетом рамки
+        wr.right - wr.left, wr.bottom - wr.top, 
         nullptr, nullptr, hInst, nullptr);
 
     InitMenu();
@@ -97,6 +100,8 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
 
         if (g_state == STATE_DISCLAIMER || g_state == STATE_MENU) RenderMenu(memDC);
         else if (g_state == STATE_PLAYING) RenderLevel1(memDC);
+        else if (g_state == STATE_GAME_OVER) RenderGameOver(memDC);
+        else if (g_state == STATE_COMPLETE) RenderComplete(memDC);
 
         BitBlt(hdc, 0, 0, 800, 600, memDC, 0, 0, SRCCOPY);
         Sleep(16); 
