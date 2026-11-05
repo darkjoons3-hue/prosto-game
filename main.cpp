@@ -12,7 +12,6 @@
 
 using namespace Gdiplus;
 
-// Обработчик кликов
 void OnMouseClick(int x, int y) {
     if (g_state == STATE_DISCLAIMER) {
         RECT btnRect = { 300, 500, 500, 550 };
@@ -42,7 +41,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         return 0;
     }
     case WM_SETCURSOR:
-        SetCursor(nullptr); // Скрываем системный курсор
+        SetCursor(nullptr);
         return TRUE;
     case WM_DESTROY:
         PostQuitMessage(0);
@@ -67,13 +66,18 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
     wc.lpszClassName = L"SquareGameWnd";
     RegisterClassW(&wc);
 
-    g_hWnd = CreateWindowExW(0, L"SquareGameWnd", L"Square Black and Green", 
-        WS_POPUP | WS_VISIBLE | WS_SYSMENU, 
-        (GetSystemMetrics(SM_CXSCREEN) - 800) / 2, 
-        (GetSystemMetrics(SM_CYSCREEN) - 600) / 2, 
-        800, 600, nullptr, nullptr, hInst, nullptr);
+    // --- ИСПРАВЛЕНИЕ: Добавляем стандартную рамку и заголовок ---
+    RECT wr = { 0, 0, 800, 600 };
+    AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME, FALSE);
 
-    InitMenu(); // Инициализация переменных меню
+    g_hWnd = CreateWindowExW(0, L"SquareGameWnd", L"Game", // <-- Название окна
+        WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME, 
+        (GetSystemMetrics(SM_CXSCREEN) - (wr.right - wr.left)) / 2, 
+        (GetSystemMetrics(SM_CYSCREEN) - (wr.bottom - wr.top)) / 2, 
+        wr.right - wr.left, wr.bottom - wr.top, // <-- Размер с учетом рамки
+        nullptr, nullptr, hInst, nullptr);
+
+    InitMenu();
 
     HDC hdc = GetDC(g_hWnd);
     HDC memDC = CreateCompatibleDC(hdc);
@@ -88,16 +92,14 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int) {
             DispatchMessageW(&msg);
         }
 
-        // Логика обновления
         if (g_state == STATE_DISCLAIMER || g_state == STATE_MENU) UpdateMenu();
         else if (g_state == STATE_PLAYING) UpdateLevel1();
 
-        // Отрисовка
         if (g_state == STATE_DISCLAIMER || g_state == STATE_MENU) RenderMenu(memDC);
         else if (g_state == STATE_PLAYING) RenderLevel1(memDC);
 
         BitBlt(hdc, 0, 0, 800, 600, memDC, 0, 0, SRCCOPY);
-        Sleep(16); // 60 FPS
+        Sleep(16); 
     }
 
     SelectObject(memDC, oldBmp);
