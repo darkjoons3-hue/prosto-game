@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <objidl.h>   // <--- ВОТ ЭТА СТРОЧКА РЕШАЕТ ПРОБЛЕМУ
 #include <gdiplus.h>
 
 // Состояния игры
