@@ -1,0 +1,27 @@
+name: Build Game
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Compile Game
+      run: |
+        cl.exe /EHsc /O2 /DNDEBUG /MD main.cpp Game.cpp Menu\Menu.cpp Levels\Level1.cpp /link /SUBSYSTEM:WINDOWS /ENTRY:wWinMainCRTStartup user32.lib gdi32.lib gdiplus.lib /OUT:SquareGame.exe
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: SquareGame-Windows
+        path: SquareGame.exe
