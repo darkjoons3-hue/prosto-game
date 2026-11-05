@@ -1,7 +1,7 @@
 #include "Level1.h"
 #include <cmath>
 
-using namespace Gdiplus;
+using namespace Gdiplus; // <--- ВАЖНО: Решает ошибки с Color и Pen
 
 // --- Константы уровня ---
 const float LEVEL_WIDTH = 2500.0f;  // Длина уровня
@@ -121,7 +121,6 @@ void UpdateLevel1() {
     }
 
     // --- 4. Логика Камеры (Слежение) ---
-    // Камера центрируется на игроке
     float targetCamX = player.x + player.size / 2 - 400; // 400 = половина ширины экрана
     float targetCamY = player.y + player.size / 2 - 300; // 300 = половина высоты экрана
 
@@ -148,10 +147,10 @@ void RenderLevel1(HDC hdc) {
     // 1. Платформы
     SolidBrush platBrush(Color(255, 100, 100, 100));
     for (const auto& p : platforms) {
-        // Оптимизация: рисуем только то, что видно на экране
         if (p.x + p.w > cameraX && p.x < cameraX + 800 &&
             p.y + p.h > cameraY && p.y < cameraY + 600) {
-            graphics.FillRectangle(&platBrush, p.x - cameraX, p.y - cameraY, p.w, p.h);
+            // Явное приведение к (REAL) чтобы избежать ошибки типов
+            graphics.FillRectangle(&platBrush, (REAL)(p.x - cameraX), (REAL)(p.y - cameraY), (REAL)p.w, (REAL)p.h);
         }
     }
 
@@ -178,13 +177,13 @@ void RenderLevel1(HDC hdc) {
 
     // 3. Марк (Зеленый куб)
     SolidBrush markBrush(Color(255, 0, 255, 0));
-    graphics.FillRectangle(&markBrush, markX - cameraX, markY - cameraY, 50, 50);
+    graphics.FillRectangle(&markBrush, (REAL)(markX - cameraX), (REAL)(markY - cameraY), 50.0f, 50.0f);
 
     // 4. Игрок (Черный куб)
     SolidBrush playerBrush(Color(255, 0, 0, 0));
-    graphics.FillRectangle(&playerBrush, player.x - cameraX, player.y - cameraY, player.size, player.size);
+    graphics.FillRectangle(&playerBrush, (REAL)(player.x - cameraX), (REAL)(player.y - cameraY), (REAL)player.size, (REAL)player.size);
     
-    // Обводка игрока
+    // Обводка игрока (Явное приведение к INT)
     Pen whitePen(Color(255, 255, 255, 255), 2);
-    graphics.DrawRectangle(&whitePen, player.x - cameraX, player.y - cameraY, player.size, player.size);
+    graphics.DrawRectangle(&whitePen, (INT)(player.x - cameraX), (INT)(player.y - cameraY), (INT)player.size, (INT)player.size);
 }
