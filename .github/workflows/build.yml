@@ -18,7 +18,7 @@ jobs:
 
     - name: Compile Game
       run: |
-        cl.exe /EHsc /O2 /DNDEBUG /MD main.cpp Game.cpp Menu\Menu.cpp Levels\Level1.cpp /link /SUBSYSTEM:WINDOWS /ENTRY:wWinMainCRTStartup user32.lib gdi32.lib gdiplus.lib /OUT:SquareGame.exe
+        cl.exe /EHsc /O2 /DNDEBUG /MD .\main.cpp .\Game.cpp .\Menu\Menu.cpp .\Levels\Level1.cpp /link /SUBSYSTEM:WINDOWS /ENTRY:wWinMainCRTStartup user32.lib gdi32.lib gdiplus.lib /OUT:SquareGame.exe
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
